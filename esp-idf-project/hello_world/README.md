@@ -1,53 +1,38 @@
-| Supported Targets | ESP32 | ESP32-C2 | ESP32-C3 | ESP32-C6 | ESP32-H2 | ESP32-S2 | ESP32-S3 |
-| ----------------- | ----- | -------- | -------- | -------- | -------- | -------- | -------- |
+# Hello World Project
 
-# Hello World Example
-
-Starts a FreeRTOS task to print "Hello World".
-
-(See the README.md file in the upper level 'examples' directory for more information about examples.)
-
-## How to use example
-
-Follow detailed instructions provided specifically for this example.
-
-Select the instructions depending on Espressif chip installed on your development board:
-
-- [ESP32 Getting Started Guide](https://docs.espressif.com/projects/esp-idf/en/stable/get-started/index.html)
-- [ESP32-S2 Getting Started Guide](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s2/get-started/index.html)
+This project is a modified version of the hello_world example from the ESP-IDF framework. It is used to demonstrate the use of the ESP-IDF framework with the ESP32 microcontroller, or precisely a QEMU that emulates the ESP32 microcontroller. But, sure you can easily run this project on a real ESP32 microcontroller.
 
 
-## Example folder contents
+## Build and Run the Project
 
-The project **hello_world** contains one source file in C language [hello_world_main.c](main/hello_world_main.c). The file is located in folder [main](main).
+Use the idf.py tool to build the project.
 
-ESP-IDF projects are built using CMake. The project build configuration is contained in `CMakeLists.txt` files that provide set of directives and instructions describing the project's source files and targets (executable, library, or both).
-
-Below is short explanation of remaining files in the project folder.
-
-```
-├── CMakeLists.txt
-├── pytest_hello_world.py      Python script used for automated testing
-├── main
-│   ├── CMakeLists.txt
-│   └── hello_world_main.c
-└── README.md                  This is the file you are currently reading
+```bash
+idf.py build
 ```
 
-For more information on structure and contents of ESP-IDF projects, please refer to Section [Build System](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/build-system.html) of the ESP-IDF Programming Guide.
+Now, we need to merge the bootloader, partition table, and the application binary into a single binary file. We can do this by running the following command.
 
-## Troubleshooting
+```bash
+cd build
+esptoo.py --chip esp32 merge_bin --fill-flash-size 4MB -o flash_image.bin @flash_args
+```
 
-* Program upload failure
+Open another terminal and run the following command to start the QEMU emulator.
 
-    * Hardware connection is not correct: run `idf.py -p PORT monitor`, and reboot your board to see if there are any output logs.
-    * The baud rate for downloading is too high: lower your baud rate in the `menuconfig` menu, and try again.
+```bash
+# Assuming you're still in the hello_world directory
+../../qemu/build/qemu-system-xtensa -nographic -s -S -machine esp32 -drive file=build/flash_image.bin,if=mtd,format=raw
+```
 
-## Technical support and feedback
+On the first terminal, run the following command to start the GDB debugger.
 
-Please use the following feedback channels:
+```bash
+xtensa-esp32-elf-gdb hello_world.elf \
+    -ex "target remote localhost:1234" \
+    -ex "monitor system-reset" \
+    -ex "tb app_main" \
+    -ex "c"
+```
 
-* For technical queries, go to the [esp32.com](https://esp32.com/) forum
-* For a feature request or bug report, create a [GitHub issue](https://github.com/espressif/esp-idf/issues)
-
-We will get back to you as soon as possible.
+The QEMU emulator will boot the firmware and stop at the `app_main` function. You can run the app_main function by typing `c` in the GDB debugger.
