@@ -1,2 +1,3 @@
 qemu
 .DS_Store
+esp-idf-project/**/build
