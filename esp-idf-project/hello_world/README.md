@@ -131,6 +131,26 @@ idx, BLOCK_NAME,          Conclusion
 Nothing to burn, see messages above.
 ```
 
+It refuses to burn the same MAC address again. Still, if we try to burn a different MAC address, it will refuse to do so.
+
+```
+espefuse.py v4.7.0
+WARNING: Pre-connection option "no_reset" was selected. Connection may fail if the chip is not in bootloader or flasher stub mode.
+Connecting...
+Device PID identification is only supported on COM and /dev/ serial ports.
+
+Detecting chip type... Unsupported detection protocol, switching and trying again...
+Connecting...
+Device PID identification is only supported on COM and /dev/ serial ports.
+..
+Detecting chip type... ESP32
+
+=== Run "burn_custom_mac" command ===
+    - 'CUSTOM_MAC' (Custom MAC address) 0x332211ccbbaa -> 0x442211ccbbaa
+
+A fatal error occurred:         New value contains some bits that cannot be cleared (value will be 0x772211ccbbaa)
+```
+
 ### Reading the Custom MAC address
 
 The first option is to use the espefuse.py tool again with a slightly different command
