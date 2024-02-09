@@ -46,7 +46,8 @@ Generate an efuse drive file using the following command
 dd if=/dev/zero bs=1 count=124 of=efuse_image.bin
 ```
 
-Run the emulator with the efuse drive file
+Then, run the emulator with the efuse drive file and accept a socket connection to communicate with the "serial port".
+This will allow us to use the esptool.py and espefuse.py tools to communicate with the emulator using a socket connection.
 
 ```bash
 ../../qemu/build/qemu-system-xtensa -nographic -machine esp32 \
@@ -69,6 +70,7 @@ The `no_reset` value for both `--after` and `--before` options is used to avoid 
 ### Burning Custom MAC Address
 
 We will use the espefuse.py tool to burn the custom MAC address.
+Note that you can only do this once. If you're using QEMU, we can reset the MAC address by simply re-generating the efuse drive file using the `dd` command. But in a real ESP32 microcontroller, you can't reset the custom MAC address once it's burned.
 
 ```bash
 espefuse.py --port socket://localhost:5555 --before no_reset --do-not-confirm burn_custom_mac aa:bb:cc:11:22:33
@@ -103,8 +105,6 @@ Reading updated efuses...
 Custom MAC Address version 1: aa:bb:cc:11:22:33 (CRC 0x6a OK)
 Successfu
 ```
-
-Note that you can only do this once. If you're using QEMU, we can reset the MAC address by simply re-generating the efuse drive file using the `dd` command. But in a real ESP32 microcontroller, you can't reset the custom MAC address once it's burned.
 
 If we retry the `burn_custom_mac` command, we will get the following message:
 
@@ -176,7 +176,7 @@ Here's the output
 00000070: 0000 0001 0000 0000 0000 0000            ............
 ```
 
-You can see the custom MAC address.
+You can see the custom MAC address there.
 
 ### Flashing the Firmware
 
@@ -192,11 +192,30 @@ Now, we can flash the firmware using the `idf.py flash` command.
 idf.py flash --port socket://localhost:5555
 ```
 
-This manouver will cause the entire source code to be recompiled. But, hey we can "flash" the firmware to the QEMU emulator without any real hardware. Cool, right?
+This manouver will cause the entire source code to be recompiled. But hey, we can "flash" the firmware to the QEMU emulator without any real hardware. Cool, right?
 
 
-My only question is, does the flash_image.bin file changed? Let's find out.
+My only question is, did this change the flash_image.bin file? Let's find out.
+
 We're going to slightly modify the `hello_world/main/hello_world_main.c` file and reflash the firmware to the QEMU emulator using the previous command.
+
+We modify the following line
+
+```c
+printf("Hello world!\n");
+```
+
+to
+
+```c
+printf("Hello worldeeee!\n");
+```
+
+Save the file and reflash the firmware to the QEMU emulator using the following command
+
+```bash
+idf.py flash --port socket://localhost:5555
+```
 
 Now, let's re-run the QEMU emulator and see if the firmware has been updated.
 
