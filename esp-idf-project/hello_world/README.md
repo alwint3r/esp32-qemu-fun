@@ -61,7 +61,7 @@ This will allow us to use the esptool.py and espefuse.py tools to communicate wi
 Run esptool.py to communicate with the emulator using socket connection
 
 ```bash
-esptoo.py --chip esp32 -p socet://localhost:5555 --after no_reset --before no_reset flash_id
+esptoo.py --chip esp32 -p socket://localhost:5555 --after no_reset --before no_reset flash_id
 ```
 
 The `no_reset` value for both `--after` and `--before` options is used to avoid errors because the QEMU emulator does not allow us to reset the emulator using the RST signal.
