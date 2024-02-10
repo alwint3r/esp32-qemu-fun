@@ -4,3 +4,4 @@ esp-idf-project/**/build
 *.bin
 *.elf
 a.out
+*.o
