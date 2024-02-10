@@ -2,3 +2,5 @@ qemu
 .DS_Store
 esp-idf-project/**/build
 *.bin
+*.elf
+a.out
